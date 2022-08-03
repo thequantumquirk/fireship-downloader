@@ -94,24 +94,27 @@ for courseLink in courseLinkList:
 
 
     # Downloading the Lessons with yt-dlp according to the users choice
-    if userMenuChoice==1:
-        for link in linkList:
-            file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
-            print("Downloading "+file_name)
-            subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name])
-            print("Downloaded "+file_name)
-        print("\nDownloaded All Lessons")
+    try:
+        if userMenuChoice==1:
+            for link in linkList:
+                file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
+                print("Downloading "+file_name)
+                subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name])
+                print("Downloaded "+file_name)
+            print("\nDownloaded All Lessons")
 
-    if userMenuChoice==2:
-        os.makedirs(courseTitle,exist_ok=True)
-        
-        #download the links
-        for link in linkList:
-            file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
-            print("Downloading "+file_name)
-            subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name,"-P",courseTitle])
-            print("Downloaded "+file_name)
-        print("\nDownloaded All Lessons")
+        if userMenuChoice==2:
+            os.makedirs(courseTitle,exist_ok=True)
+            #download the links
+            for link in linkList:
+                file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
+                print("Downloading "+file_name)
+                subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name,"-P",courseTitle])
+                print("Downloaded "+file_name)
+            print("\nDownloaded All Lessons")
+    except (FileNotFoundError):
+        print("\nPlease install \"yt-dlp\" ")
+        exit()
 
 
 # Cleaning up text files created for batch operations
