@@ -87,12 +87,32 @@ for courseLink in courseLinkList:
         fireshipLinkOut.write(link+"\n")
     fireshipLinkOut.close()
     
+    #read the links as list
+    fireshipLinkIn=open(courseTitle+".txt", "r")
+    linkList=fireshipLinkIn.readlines()
+    fireshipLinkIn.close()
+
+
     # Downloading the Lessons with yt-dlp according to the users choice
     if userMenuChoice==1:
-        subprocess.run(["yt-dlp","-f","mp4","-a",courseTitle+".txt"])
+        for link in linkList:
+            file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
+            print("Downloading "+file_name)
+            subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name])
+            print("Downloaded "+file_name)
+        print("\nDownloaded All Lessons")
+
     if userMenuChoice==2:
         os.makedirs(courseTitle,exist_ok=True)
-        subprocess.run(["yt-dlp","-f","mp4","-a",courseTitle+".txt","-P",courseTitle])
+        
+        #download the links
+        for link in linkList:
+            file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
+            print("Downloading "+file_name)
+            subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name,"-P",courseTitle])
+            print("Downloaded "+file_name)
+        print("\nDownloaded All Lessons")
+
 
 # Cleaning up text files created for batch operations
 for fileName in os.listdir():
