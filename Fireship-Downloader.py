@@ -4,7 +4,7 @@
 # This script relies on yt-dlp use `pip install yt-dlp` to install it
 # Support: https://telegram.dog/fossaf
 
-from re import findall
+from re import *
 import subprocess
 import urllib.request
 import os
@@ -18,8 +18,8 @@ print("""
 while(True):
     try:
         userMenuChoice=int(input("""
-1. Download Course Here
-2. Download Course in Seperate Folder
+1. Download Course/Lesson Here
+2. Download Course/Lesson in Seperate Folder
 Enter Your Choice: """))
         if userMenuChoice != 1 and userMenuChoice != 2:
             raise ValueError
@@ -33,7 +33,7 @@ Enter Your Choice: """))
 while(True):
     try:
         courseLinkInput = input("""
-Enter the Fireship Course Link (Multiple links are Supported Eg. link1 link2 ): """)
+Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 link2 ): """)
         # Spliting the links if multiple links are given
         courseLinkList = courseLinkInput.split(" ")
         for courseLink in courseLinkList:
@@ -61,24 +61,29 @@ for courseLink in courseLinkList:
     for element in fireshipResponse:
         element = element.strip()
         stripedResponse.append(element)
-
-    # Parsing through the <header> tag to fetch the course title
-    courseHeader = findall('<header>(.*?)</header>', str(stripedResponse))
-    courseTitle = findall('id="(.*?)"', str(courseHeader))
-    courseTitle = courseTitle[0].capitalize()
     
-    # Fetching all the video links in the course 
-    url=[]
-    for line in stripedResponse:
-        line=line.strip()
-        if line.startswith('<a href="/courses/'):
-            line=findall(r'"(.*?)"', line)
-            url.append(line)
     linkList=[]
-    for line in url:
-        for link in line:
-            link="https://fireship.io/"+link
-            linkList.append(link)
+    # Parsing through the <header> tag to fetch the course title
+    courseTitle = findall('<h1 .*>(.*?)</h1>', str(stripedResponse), DOTALL)
+    print(courseTitle)
+    courseTitle = sub("\[\"', '","",str(courseTitle))
+    courseTitle = sub("', '\"\]", "", str(courseTitle))
+    courseTitle = courseTitle
+    # Fetching the course Link
+    if "lessons" in courseLink:
+            linkList.append(courseLink)
+    # Fetching all the video links if its a course 
+    else:
+        url=[]
+        for line in stripedResponse:
+            line=line.strip()
+            if line.startswith('<a href="/courses/'):
+                line=findall(r'"(.*?)"', line)
+                url.append(line)
+        for line in url:
+            for link in line:
+                link="https://fireship.io/"+link
+                linkList.append(link)
     
     # Storing the Links in a Textfile to make batch process with yt-dlp
     fireshipLinkOut=open(courseTitle+".txt", "w")
