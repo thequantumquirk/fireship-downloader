@@ -51,10 +51,9 @@ def download_video(link, filename):
                     {'key': 'FFmpegMetadata', 'add_metadata': True},
                     {'key': 'EmbedThumbnail', 'already_have_thumbnail': False}
             ],
-            # Download and merge the best video-only format and the best audio-only format,
-            # or download the best combined format if video-only format is not availables
-            'format': 'bv+ba/b',
-            'merge_output_format': 'mp4'
+            # Download best format that contains video,
+            # and if it doesn't already have an audio stream, merge it with best audio-only format
+            'format': 'bv*+ba/b'
     }
 
     with YoutubeDL(ydl_opts) as ydl:
