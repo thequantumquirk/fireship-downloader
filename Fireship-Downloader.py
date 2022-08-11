@@ -6,7 +6,7 @@
 
 from re import *
 import subprocess
-import urllib.request
+import requests
 import os
 
 print("""
@@ -42,7 +42,7 @@ Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 li
             if "fireship.io" not in courseLink:
                 raise ValueError
             # Checking if the given links are valid
-            fireshipResponse = urllib.request.urlopen(courseLink).read().decode("utf-8")
+            fireshipResponse = requests.get(courseLink).content
         break
     except ValueError:
         print("\nEnter a Valid Fireship.io link")
@@ -54,7 +54,7 @@ for courseLink in courseLinkList:
     # Striping the link incase if there's duplicated whitespace
     courseLink = courseLink.strip()
     # Connecting to the url and fetching the HTML
-    fireshipResponse = urllib.request.urlopen(courseLink).read().decode("utf-8")
+    fireshipResponse = requests.get(courseLink).content
     # Parsing and Formatting the obtained HTML response
     fireshipResponse = fireshipResponse.split("\n")
     stripedResponse = []
