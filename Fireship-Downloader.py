@@ -15,22 +15,22 @@ print("""
 \t\t\t\t\t- @fosslover
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
-while(True):
+while True:
     try:
-        userMenuChoice=int(input("""
+        userMenuChoice = int(input("""
 1. Download Course/Lesson Here
 2. Download Course/Lesson in Seperate Folder
 Enter Your Choice: """))
         if userMenuChoice != 1 and userMenuChoice != 2:
             raise ValueError
         break
-    except (ValueError):
+    except ValueError:
         print("Enter a Valid Choice")
-    except (KeyboardInterrupt):
+    except KeyboardInterrupt:
         print("\nExiting.....")
         exit()
 
-while(True):
+while True:
     try:
         courseLinkInput = input("""
 Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 link2 ): """)
@@ -44,9 +44,9 @@ Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 li
             # Checking if the given links are valid
             fireshipResponse = urllib.request.urlopen(courseLink).read().decode("utf-8")
         break
-    except (ValueError):
+    except ValueError:
         print("\nEnter a Valid Fireship.io link")
-    except (KeyboardInterrupt):
+    except KeyboardInterrupt:
         print("\nExiting.....")
         exit()
 # Looping through the provided links
@@ -57,70 +57,68 @@ for courseLink in courseLinkList:
     fireshipResponse = urllib.request.urlopen(courseLink).read().decode("utf-8")
     # Parsing and Formatting the obtained HTML response
     fireshipResponse = fireshipResponse.split("\n")
-    stripedResponse=[]
+    stripedResponse = []
     for element in fireshipResponse:
         element = element.strip()
         stripedResponse.append(element)
-    
-    linkList=[]
+
+    linkList = []
     # Parsing through the <header> tag to fetch the course title
     courseTitle = findall('<h1 .*>(.*?)</h1>', str(stripedResponse), DOTALL)
     print(courseTitle)
-    courseTitle = sub("\[\"', '","",str(courseTitle))
-    courseTitle = sub("', '\"\]", "", str(courseTitle))
+    courseTitle = sub("\[\"', '", "", str(courseTitle))
+    courseTitle = sub("', '\"]", "", str(courseTitle))
     courseTitle = courseTitle
     # Fetching the course Link
     if "lessons" in courseLink:
-            linkList.append(courseLink)
+        linkList.append(courseLink)
     # Fetching all the video links if its a course 
     else:
-        url=[]
+        url = []
         for line in stripedResponse:
-            line=line.strip()
+            line = line.strip()
             if line.startswith('<a href="/courses/'):
-                line=findall(r'"(.*?)"', line)
+                line = findall(r'"(.*?)"', line)
                 url.append(line)
         for line in url:
             for link in line:
-                link="https://fireship.io/"+link
+                link = "https://fireship.io/" + link
                 linkList.append(link)
-    
-    # Storing the Links in a Textfile to make batch process with yt-dlp
-    fireshipLinkOut=open(courseTitle+".txt", "w")
-    
-    for link in linkList:
-        fireshipLinkOut.write(link+"\n")
-    fireshipLinkOut.close()
-    
-    #read the links as list
-    fireshipLinkIn=open(courseTitle+".txt", "r")
-    linkList=fireshipLinkIn.readlines()
-    fireshipLinkIn.close()
 
+    # Storing the Links in a Textfile to make batch process with yt-dlp
+    fireshipLinkOut = open(courseTitle + ".txt", "w")
+
+    for link in linkList:
+        fireshipLinkOut.write(link + "\n")
+    fireshipLinkOut.close()
+
+    # read the links as list
+    fireshipLinkIn = open(courseTitle + ".txt", "r")
+    linkList = fireshipLinkIn.readlines()
+    fireshipLinkIn.close()
 
     # Downloading the Lessons with yt-dlp according to the users choice
     try:
-        if userMenuChoice==1:
+        if userMenuChoice == 1:
             for link in linkList:
-                file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
-                print("Downloading "+file_name)
-                subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name])
-                print("Downloaded "+file_name)
+                file_name = link.split("/")[-2] + ".mp4"  # takes /n as last of list, that's why -2 is used
+                print("Downloading " + file_name)
+                subprocess.run(["yt-dlp", "-f", "mp4", link, "-o" + file_name])
+                print("Downloaded " + file_name)
             print("\nDownloaded All Lessons")
 
-        if userMenuChoice==2:
-            os.makedirs(courseTitle,exist_ok=True)
-            #download the links
+        if userMenuChoice == 2:
+            os.makedirs(courseTitle, exist_ok=True)
+            # download the links
             for link in linkList:
-                file_name=link.split("/")[-2]+".mp4" #takes /n as last of list, that's why -2 is used
-                print("Downloading "+file_name)
-                subprocess.run(["yt-dlp","-f","mp4",link,"-o"+file_name,"-P",courseTitle])
-                print("Downloaded "+file_name)
+                file_name = link.split("/")[-2] + ".mp4"  # takes /n as last of list, that's why -2 is used
+                print("Downloading " + file_name)
+                subprocess.run(["yt-dlp", "-f", "mp4", link, "-o" + file_name, "-P", courseTitle])
+                print("Downloaded " + file_name)
             print("\nDownloaded All Lessons")
-    except (FileNotFoundError):
+    except FileNotFoundError:
         print("\nPlease install \"yt-dlp\" ")
         exit()
-
 
 # Cleaning up text files created for batch operations
 for fileName in os.listdir():
