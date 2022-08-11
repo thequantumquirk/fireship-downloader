@@ -54,7 +54,7 @@ def download_video(link, filename):
             # Download and merge the best video-only format and the best audio-only format,
             # or download the best combined format if video-only format is not availables
             'format': 'bv+ba/b',
-            'merge_output_format': 'mp4/mkv'
+            'merge_output_format': 'mp4'
     }
 
     with YoutubeDL(ydl_opts) as ydl:
