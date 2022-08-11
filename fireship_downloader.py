@@ -12,7 +12,7 @@ from pathvalidate import sanitize_filepath
 
 import requests
 
-from yt_dlp import YoutubeDL
+import yt_dlp
 
 print("""
 \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +56,7 @@ def download_video(link, filename):
             'format': 'bv*+ba/b'
     }
 
-    with YoutubeDL(ydl_opts) as ydl:
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([link])
 
 
@@ -139,7 +139,10 @@ def download_course(course_link):
             # Download every video
             for video in videos:
                 print(f'Downloading Video - {video["file_name"]}')
-                download_video(video["fireship_link"], os.path.join(section_dir, video["file_name"]))
+                try:
+                    download_video(video["fireship_link"], os.path.join(section_dir, video["file_name"]))
+                except yt_dlp.utils.DownloadError:
+                    print(f"\nNo video found for - {video['file_name']}")
 
         print(f"\n\n\nDownloaded Course - {course_title}")
 
@@ -153,7 +156,10 @@ def download_course(course_link):
 
         # Download Lesson
         print(f'Downloading lesson - {video["file_name"]}')
-        download_video(video["fireship_link"], video["file_name"])
+        try:
+            download_video(video["fireship_link"], video["file_name"])
+        except yt_dlp.utils.DownloadError:
+            print(f"\nNo video found for - {lesson_title}")
         print(f"\n\n\nDownloaded Lesson - {lesson_title}")
 
     # Close requests session
