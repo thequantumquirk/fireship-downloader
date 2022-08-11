@@ -1,3 +1,4 @@
+# NOTE: THIS IS ONLY FOR DEMONSTRATION PURPOSES. NO HARM IS INTENDED
 # This is a fireship course downloader made by https://telegram.dog/fosslover and https://github.com/ShivamKumar2002
 # It can be used to download courses and lessons from https://fireship.io
 # You can check out our github account at https://github.com/fosslover69, https://github.com/ShivamKumar2002
