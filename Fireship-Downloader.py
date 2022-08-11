@@ -16,39 +16,29 @@ print("""
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
 while True:
-    try:
-        userMenuChoice = int(input("""
-1. Download Course/Lesson Here
-2. Download Course/Lesson in Seperate Folder
-Enter Your Choice: """))
-        if userMenuChoice != 1 and userMenuChoice != 2:
-            raise ValueError
+    userMenuChoice = int(input("""
+        1. Download Course/Lesson Here
+        2. Download Course/Lesson in Seperate Folder
+        Enter Your Choice: """))
+    if userMenuChoice in (1, 2):
         break
-    except ValueError:
+    else:
         print("Enter a Valid Choice")
-    except KeyboardInterrupt:
-        print("\nExiting.....")
-        exit()
 
 while True:
-    try:
-        courseLinkInput = input("""
+    courseLinkInput = input("""
 Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 link2 ): """)
-        # Spliting the links if multiple links are given
-        courseLinkList = courseLinkInput.split(" ")
-        for courseLink in courseLinkList:
-            courseLink = courseLink.strip()
-            # Checking if the given links are from fireship.io
-            if "fireship.io" not in courseLink:
-                raise ValueError
-            # Checking if the given links are valid
-            fireshipResponse = requests.get(courseLink).content
+    # Spliting the links if multiple links are given
+    courseLinkList = courseLinkInput.split(" ")
+    for courseLink in courseLinkList:
+        courseLink = courseLink.strip()
+        # Checking if the given links are from fireship.io
+        if "fireship.io" not in courseLink:
+            print("\nEnter a Valid Fireship.io link")
+            break
+    else:
         break
-    except ValueError:
-        print("\nEnter a Valid Fireship.io link")
-    except KeyboardInterrupt:
-        print("\nExiting.....")
-        exit()
+
 # Looping through the provided links
 for courseLink in courseLinkList:
     # Striping the link incase if there's duplicated whitespace
