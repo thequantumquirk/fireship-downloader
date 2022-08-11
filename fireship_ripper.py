@@ -5,6 +5,8 @@
 # This script relies on yt-dlp to download videos
 # Support: https://telegram.dog/fossaf
 
+from concurrent.futures import ThreadPoolExecutor
+
 from bs4 import BeautifulSoup
 
 import requests
@@ -44,16 +46,16 @@ def main():
     # Download all courses
     print("\n\n\nDownloading All Courses...")
 
-    for course_link in courses_links:
-        download_course(course_link)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        executor.map(download_course, courses_links)
 
     print("\n\n\nDownloaded All Courses")
 
     # Download all lessons
     print("\n\n\nDownloading All Lessons...")
 
-    for lesson_link in lessons_links:
-        download_course(lesson_link)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        executor.map(download_course, lessons_links)
 
     print("\n\n\nDownloaded All Lessons")
 
