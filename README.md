@@ -1,9 +1,11 @@
 # Fireship Downloader
-A simple video downloader script to download courses from [fireship.io](https://fireship.io) with yt-dlp
+A complete course downloader script to download courses from [fireship.io](https://fireship.io) with yt-dlp
 
-You can download pro courses too XD
+You can download pro courses too XD.
 
-This script relies on yt-dlp use `pip install yt-dlp` to install it
+This script uses `yt-dlp` for downloading videos.
+
+To setup, run `python3 -m pip install -r requirements.txt`
 
 To download courses do `python3 Fireship-Downloader.py` and follow the On-Screen instructions 
  

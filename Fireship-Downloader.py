@@ -1,116 +1,172 @@
-# This is a fireship course downloader made by https://telegram.dog/fosslover
-# which is used to download courses from https://fireship.io (You can download pro courses too XD)
-# You can check out my github account at https://github.com/fosslover69
-# This script relies on yt-dlp use `pip install yt-dlp` to install it
+# This is a fireship course downloader made by https://telegram.dog/fosslover and https://github.com/ShivamKumar2002
+# It can be used to download courses and lessons from https://fireship.io
+# You can check out our github account at https://github.com/fosslover69, https://github.com/ShivamKumar2002
+# This script relies on yt-dlp to download videos
 # Support: https://telegram.dog/fossaf
-
-from re import *
-import subprocess
-import requests
 import os
+
+from bs4 import BeautifulSoup
+
+from pathvalidate import sanitize_filepath
+
+import requests
+
+from yt_dlp import YoutubeDL
 
 print("""
 \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \t\tFireship Course Downloader
 \t\t\t\t\t- @fosslover
+\t\t\t\t\t- @ShivamKumar2002
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
-while True:
-    userMenuChoice = int(input("""
-        1. Download Course/Lesson Here
-        2. Download Course/Lesson in Seperate Folder
-        Enter Your Choice: """))
-    if userMenuChoice in (1, 2):
-        break
-    else:
-        print("Enter a Valid Choice")
 
-while True:
-    courseLinkInput = input("""
-Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 link2 ): """)
-    # Spliting the links if multiple links are given
-    courseLinkList = courseLinkInput.split(" ")
-    for courseLink in courseLinkList:
-        courseLink = courseLink.strip()
-        # Checking if the given links are from fireship.io
-        if "fireship.io" not in courseLink:
-            print("\nEnter a Valid Fireship.io link")
+def get_course_links():
+    while True:
+        course_links = input("Enter the Fireship Course/Lesson Link (Multiple links are Supported Eg. link1 link2 ): ").split(" ")
+        for course_link in course_links:
+            course_link = course_link.strip()
+            # Checking if the given links are from fireship.io
+            if "fireship.io" not in course_link:
+                print("\nEnter a Valid Fireship.io link")
+                break
+        else:
             break
-    else:
-        break
 
-# Looping through the provided links
-for courseLink in courseLinkList:
-    # Striping the link incase if there's duplicated whitespace
-    courseLink = courseLink.strip()
-    # Connecting to the url and fetching the HTML
-    fireshipResponse = requests.get(courseLink).content
-    # Parsing and Formatting the obtained HTML response
-    fireshipResponse = fireshipResponse.split("\n")
-    stripedResponse = []
-    for element in fireshipResponse:
-        element = element.strip()
-        stripedResponse.append(element)
+    return course_links
 
-    linkList = []
-    # Parsing through the <header> tag to fetch the course title
-    courseTitle = findall('<h1 .*>(.*?)</h1>', str(stripedResponse), DOTALL)
-    print(courseTitle)
-    courseTitle = sub("\[\"', '", "", str(courseTitle))
-    courseTitle = sub("', '\"]", "", str(courseTitle))
-    courseTitle = courseTitle
-    # Fetching the course Link
-    if "lessons" in courseLink:
-        linkList.append(courseLink)
-    # Fetching all the video links if its a course 
-    else:
-        url = []
-        for line in stripedResponse:
-            line = line.strip()
-            if line.startswith('<a href="/courses/'):
-                line = findall(r'"(.*?)"', line)
-                url.append(line)
-        for line in url:
-            for link in line:
-                link = "https://fireship.io/" + link
-                linkList.append(link)
 
-    # Storing the Links in a Textfile to make batch process with yt-dlp
-    fireshipLinkOut = open(courseTitle + ".txt", "w")
+def download_video(link, filename):
+    # Custom configurations for yt-dlp
+    ydl_opts = {
+            # Output to the given filenames
+            'outtmpl': {'default': filename + '.%(ext)s'},
+            # Write subtitles
+            'writesubtitles': 'true',
+            # Download all subtitles
+            'subtitleslangs': ['all'],
+            # Add metadata and thumbnail to file
+            'postprocessors': [
+                    {'key': 'FFmpegMetadata', 'add_metadata': True},
+                    {'key': 'EmbedThumbnail', 'already_have_thumbnail': False}
+            ],
+            # Download and merge the best video-only format and the best audio-only format,
+            # or download the best combined format if video-only format is not availables
+            'format': 'bv+ba/b',
+            'merge_output_format': 'mp4/mkv'
+    }
 
-    for link in linkList:
-        fireshipLinkOut.write(link + "\n")
-    fireshipLinkOut.close()
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download([link])
 
-    # read the links as list
-    fireshipLinkIn = open(courseTitle + ".txt", "r")
-    linkList = fireshipLinkIn.readlines()
-    fireshipLinkIn.close()
 
-    # Downloading the Lessons with yt-dlp according to the users choice
-    try:
-        if userMenuChoice == 1:
-            for link in linkList:
-                file_name = link.split("/")[-2] + ".mp4"  # takes /n as last of list, that's why -2 is used
-                print("Downloading " + file_name)
-                subprocess.run(["yt-dlp", "-f", "mp4", link, "-o" + file_name])
-                print("Downloaded " + file_name)
-            print("\nDownloaded All Lessons")
+def main():
+    course_links = get_course_links()
 
-        if userMenuChoice == 2:
-            os.makedirs(courseTitle, exist_ok=True)
-            # download the links
-            for link in linkList:
-                file_name = link.split("/")[-2] + ".mp4"  # takes /n as last of list, that's why -2 is used
-                print("Downloading " + file_name)
-                subprocess.run(["yt-dlp", "-f", "mp4", link, "-o" + file_name, "-P", courseTitle])
-                print("Downloaded " + file_name)
-            print("\nDownloaded All Lessons")
-    except FileNotFoundError:
-        print("\nPlease install \"yt-dlp\" ")
-        exit()
+    # Looping through the provided links
+    for course_link in course_links:
+        print(f"\n\n\nProcessing Link - {course_link}")
 
-# Cleaning up text files created for batch operations
-for fileName in os.listdir():
-    if fileName.endswith(".txt"):
-        os.remove(fileName)
+        session = requests.Session()
+
+        # Get url content
+        fireship_response = session.get(course_link).content
+
+        # Use beautifulsoup for parsing html
+        soup = BeautifulSoup(fireship_response, 'html.parser')
+
+        # Get course title and sanitize it for using as file or directory
+        course_title = sanitize_filepath(soup.find("h1", attrs={"itemprop": "name"}).get_text().strip())
+        print(f"\nCourse Title - {course_title}")
+
+        videos_links = {}
+
+        print(f"\nGetting Download Links :-")
+
+        # If link is a course
+        if "lessons" not in course_link:
+            current_section = "99. Unknown Section"
+            section_counter = 1
+
+            # Iterate over every child element of chapters
+            for child in soup.find("div", class_="chapters-wrap").findChildren(recursive=False):
+                # Arrange videos by sections
+                if child.name == "h3":
+                    # Sanitize section name
+                    current_section = sanitize_filepath(f"{section_counter}. {child.get_text().strip()}")
+                    section_counter += 1
+
+                    print(f"Processing Section - {current_section}")
+
+                    # Add section for video links
+                    videos_links[current_section] = list()
+
+                    # Current child is no longer needed
+                    continue
+
+                # Add link to appropriate sections
+                elif child.name == "a":
+                    # Get video name
+                    file_name = sanitize_filepath(f'{child.find("strong").get_text().strip()} - {child.find("span", attrs={"class": "subtext"}).get_text().strip()}')
+                    print(file_name)
+
+                    # Fireship url of video
+                    video_fireship_link = f"https://fireship.io{child['href']}"
+
+                    # Add video info to video links
+                    videos_links[current_section].append({"file_name": file_name, "fireship_link": video_fireship_link})
+
+                else:
+                    # If got unexpected child tag
+                    print("Unknown child element while getting links")
+                    print(child.prettify())
+                    print("Continuing from next elements...")
+                    continue
+
+            # Download this course
+            print(f"\n\n\nStarting Download for Course - {course_title}")
+
+            # Get current directory
+            script_dir = os.getcwd()
+
+            # Make course directory
+            course_dir = os.path.join(script_dir, course_title)
+            os.makedirs(course_dir, exist_ok=True)
+
+            # Iterate over every section
+            for section_name, videos in videos_links.items():
+                print(f"\nDownloading section - {section_name}")
+
+                # Make sections directory
+                section_dir = os.path.join(course_dir, section_name)
+                os.makedirs(section_dir, exist_ok=True)
+
+                # Download every video
+                for video in videos:
+                    print(f'Downloading Video - {video["file_name"]}')
+                    download_video(video["fireship_link"], os.path.join(section_dir, video["file_name"]))
+
+                # Go to course directory for downloading next section
+                os.chdir(course_dir)
+
+            print(f"\n\n\nDownloaded Course - {course_title}")
+            os.chdir(script_dir)
+
+        # If the link is a single lesson
+        else:
+            # Get lesson name
+            file_name = sanitize_filepath(f'{soup.find("post-video").get_text().strip()}')
+
+            # Add lesson info to lesson links
+            video = {"file_name": file_name, "fireship_link": course_link}
+
+            # Download Lesson
+            print(f'Downloading lesson - {video["file_name"]}')
+            download_video(video["lesson_actual_link"], video["file_name"])
+
+        # Close requests session
+        session.close()
+
+
+if __name__ == "__main__":
+    main()
