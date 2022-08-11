@@ -38,7 +38,10 @@ def main():
     lessons_soup = BeautifulSoup(requests.get(lessons_page).content, 'html.parser')
 
     # List of all lessons elements
-    all_lessons = lessons_soup.find_all('a', class_='card-lesson')
+    all_lessons_div = lessons_soup.find_all('div', class_='card-lesson')
+    all_lessons = []
+    for lesson in all_lessons_div:
+        all_lessons.append(lesson.find("a"))
 
     # Get links for all lessons
     lessons_links = [f"https://fireship.io{a['href']}" for a in all_lessons]
