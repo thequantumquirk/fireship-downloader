@@ -141,11 +141,7 @@ def download_course(course_link):
                 print(f'Downloading Video - {video["file_name"]}')
                 download_video(video["fireship_link"], os.path.join(section_dir, video["file_name"]))
 
-            # Go to course directory for downloading next section
-            os.chdir(course_dir)
-
         print(f"\n\n\nDownloaded Course - {course_title}")
-        os.chdir(script_dir)
 
     # If the link is a single lesson
     else:
