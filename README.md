@@ -1,4 +1,6 @@
 # Fireship Downloader
+This Script is Obsolete now because of the recent changes on the site
+
 A complete course downloader script to download courses from [fireship.io](https://fireship.io) with yt-dlp
 
 This script uses `yt-dlp` for downloading videos.
